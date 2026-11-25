@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EventRegistrationAPI_GeorgeDai.Services;
 using EventRegistrationAPI_GeorgeDai.DTOs;
+using EventRegistrationAPI_GeorgeDai.Models;
 
 namespace EventRegistrationAPI_GeorgeDai.Controllers
 {
@@ -14,6 +15,12 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
         public EventController(IEventService eventService)
         {
             _eventService = eventService;
+        }
+
+        private readonly IRegistrationService _registrationService;
+        public EventController(IRegistrationService registrationService)
+        {
+            _registrationService = registrationService;
         }
 
         // GET: api/Event
@@ -40,7 +47,7 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
         [HttpGet("{id}/registrations")]
         public async Task<ActionResult<List<RegistrationDto>>> GetRegistrationsAsync(int id)
         {
-            var registrations = await _eventService.GetRegistrationsAsync(id);
+            var registrations = await _registrationService.GetRegistrationsAsync(id);
             if (!registrations.Any())
             {
                 return NotFound(); // Return 404 Not Found if no registrations are found for the event
@@ -65,12 +72,24 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
         [HttpPost("{id}/register")]
         public async Task<ActionResult<EventDto?>> RegisterForEventAsync(int id, CreateRegistrationDto dto)
         {
-            var updatedEvent = await _eventService.RegisterForEventAsync(id, dto);
-            if (updatedEvent == null)
+            var result = await _registrationService.RegisterForEventAsync(id, dto);
+            if (result.ResultType == "EventNotFound")
             {
-                return BadRequest(); // Return 400 Bad Request if the registration fails
+                return NotFound("Event not found"); // Return 404 Not Found if the event is not found
             }
-            return Ok(updatedEvent); // Return the updated event with a 200 OK status
+            if (result.ResultType == "EventFull")
+            {
+                return Conflict("This Event is full"); // Return 409 Conflict if the event is full
+            }
+            if (result.ResultType == "EventAlreadyHappened")
+            {
+                return BadRequest("Registration is closed for past events"); // Return 400 Bad Request if the event has already happened
+            }
+            if (result.ResultType == "AlreadyRegistered")
+            {
+                return Conflict("This email is already registered for this event"); // Return 409 Conflict if the user has already registered for the event
+            }
+            return Ok(GetByIdAsync(result.EventId)); // Return the updated event with a 200 OK status
         }
     }
 }

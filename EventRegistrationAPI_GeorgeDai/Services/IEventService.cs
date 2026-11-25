@@ -1,4 +1,5 @@
 ﻿using EventRegistrationAPI_GeorgeDai.DTOs;
+using EventRegistrationAPI_GeorgeDai.Models;
 
 namespace EventRegistrationAPI_GeorgeDai.Services
 {
@@ -7,7 +8,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
         Task<List<EventDto>> GetAllAsync();
         Task<EventDto?> GetByIdAsync(int id);
         Task<EventDto?> CreateAsync(CreateEventDto dto);
-        Task<List<RegistrationDto>> GetRegistrationsAsync(int eventId);
-        Task<EventDto?> RegisterForEventAsync(int eventId, CreateRegistrationDto dto);
+
+        
     }
 }

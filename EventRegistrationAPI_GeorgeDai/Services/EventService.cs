@@ -71,38 +71,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
             };
         }
 
-        public async Task<List<RegistrationDto>> GetRegistrationsAsync(int eventId)
-        {
-            return await _context.Registrations
-                .Where(r => r.EventId == eventId)
-                .Select(r => new RegistrationDto
-                {
-                    RegistrationId = r.RegistrationId,
-                    StudentName = r.StudentName,
-                    Email = r.Email,
-                    EventTitle = r.Event.Title,
-                    RegisteredOn = r.RegisteredOn
-                })
-                .ToListAsync();
-        }
-
-        public async Task<EventDto?> RegisterForEventAsync(int eventId, CreateRegistrationDto dto){
-            var eventEntity = await _context.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.EventId == eventId);
-            if (eventEntity == null || eventEntity.Registrations.Count >= eventEntity.Capacity)
-            {
-                return null; // Event not found or full
-            }
-            var newRegistration = new Registration
-            {
-                StudentName = dto.StudentName,
-                Email = dto.Email,
-                EventId = eventId,
-                RegisteredOn = DateTime.Now
-            };
-            _context.Registrations.Add(newRegistration);
-            await _context.SaveChangesAsync();
-            return await GetByIdAsync(eventId); // Return the updated event details
-        }
+        
 
     }
 }
