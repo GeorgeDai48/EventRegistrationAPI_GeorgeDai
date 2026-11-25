@@ -1,0 +1,6 @@
+@EventRegistrationAPI_GeorgeDai_HostAddress = http://localhost:5279
+
+GET {{EventRegistrationAPI_GeorgeDai_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
