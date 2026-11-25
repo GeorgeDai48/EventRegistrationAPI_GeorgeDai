@@ -86,31 +86,23 @@ namespace EventRegistrationAPI_GeorgeDai.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateAsync(int id, CreateEventDto dto)
-        {
-            var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.EventId == id);
-            if (eventEntity == null)
+        public async Task<EventDto?> RegisterForEventAsync(int eventId, CreateRegistrationDto dto){
+            var eventEntity = await _context.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.EventId == eventId);
+            if (eventEntity == null || eventEntity.Registrations.Count >= eventEntity.Capacity)
             {
-                return false;
+                return null; // Event not found or full
             }
-            eventEntity.Title = dto.Title;
-            eventEntity.Location = dto.Location;
-            eventEntity.EventDate = dto.EventDate;
-            eventEntity.Capacity = dto.Capacity;
+            var newRegistration = new Registration
+            {
+                StudentName = dto.StudentName,
+                Email = dto.Email,
+                EventId = eventId,
+                RegisteredOn = DateTime.Now
+            };
+            _context.Registrations.Add(newRegistration);
             await _context.SaveChangesAsync();
-            return true;
+            return await GetByIdAsync(eventId); // Return the updated event details
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.EventId == id);
-            if (eventEntity == null)
-            {
-                return false;
-            }
-            _context.Events.Remove(eventEntity);
-            await _context.SaveChangesAsync();
-            return true;
-        }
     }
 }

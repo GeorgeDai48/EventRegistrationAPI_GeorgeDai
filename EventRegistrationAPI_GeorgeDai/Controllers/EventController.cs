@@ -5,7 +5,7 @@ using EventRegistrationAPI_GeorgeDai.DTOs;
 
 namespace EventRegistrationAPI_GeorgeDai.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]s")]
     [ApiController]
     public class EventController : ControllerBase
     {
@@ -47,6 +47,30 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             }
 
             return Ok(registrations); // Return the list of registrations with a 200 OK status
+        }
+
+        //POST: api/Event
+        [HttpPost]
+        public async Task<ActionResult<EventDto?>> CreateAsync(CreateEventDto dto)
+        {
+            var createdEvent = await _eventService.CreateAsync(dto);
+            if (createdEvent == null)
+            {
+                return BadRequest(); // Return 400 Bad Request if the event creation fails
+            }
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = createdEvent.EventId }, createdEvent); // Return 201 Created with the location of the new event
+        }
+
+        //POST: api/Event/{id}/register
+        [HttpPost("{id}/register")]
+        public async Task<ActionResult<EventDto?>> RegisterForEventAsync(int id, CreateRegistrationDto dto)
+        {
+            var updatedEvent = await _eventService.RegisterForEventAsync(id, dto);
+            if (updatedEvent == null)
+            {
+                return BadRequest(); // Return 400 Bad Request if the registration fails
+            }
+            return Ok(updatedEvent); // Return the updated event with a 200 OK status
         }
     }
 }
