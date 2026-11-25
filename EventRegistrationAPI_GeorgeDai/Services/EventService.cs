@@ -31,7 +31,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
 
         public async Task<EventDto?> GetByIdAsync(int id)
         {
-            var eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.EventId == id);
+            var eventEntity = await _context.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.EventId == id);
             if (eventEntity == null)
             {
                 return null;

@@ -11,19 +11,16 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
     public class EventController : ControllerBase
     {
 
-        private readonly IEventService _eventService;  
-        public EventController(IEventService eventService)
+        private readonly IEventService _eventService;
+        private readonly IRegistrationService _registrationService;
+
+        public EventController(IEventService eventService, IRegistrationService registrationService)
         {
             _eventService = eventService;
-        }
-
-        private readonly IRegistrationService _registrationService;
-        public EventController(IRegistrationService registrationService)
-        {
             _registrationService = registrationService;
         }
 
-        // GET: api/Event
+        // GET: api/Events
         [HttpGet]
         public async Task<ActionResult<List<EventDto>>> GetAllSync()
         {
@@ -31,8 +28,8 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             return Ok(events); // Return the list of events with a 200 OK status
         }
 
-        //GET: api/Event/{id}
-        [HttpGet("{id}")]
+        //GET: api/Events/{id}
+        [HttpGet("{id}", Name = "GetByIdAsync")]
         public async Task<ActionResult<EventDto?>> GetByIdAsync(int id)
         {
             var eventEntity = await _eventService.GetByIdAsync(id);
@@ -43,7 +40,7 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             return Ok(eventEntity); // Return the event with a 200 OK status
         }
 
-        //GET: api/Event/{id}/registrations
+        //GET: api/Events/{id}/registrations
         [HttpGet("{id}/registrations")]
         public async Task<ActionResult<List<RegistrationDto>>> GetRegistrationsAsync(int id)
         {
@@ -56,7 +53,7 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             return Ok(registrations); // Return the list of registrations with a 200 OK status
         }
 
-        //POST: api/Event
+        //POST: api/Events
         [HttpPost]
         public async Task<ActionResult<EventDto?>> CreateAsync(CreateEventDto dto)
         {
@@ -65,11 +62,11 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             {
                 return BadRequest(); // Return 400 Bad Request if the event creation fails
             }
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = createdEvent.EventId }, createdEvent); // Return 201 Created with the location of the new event
+            return CreatedAtRoute("GetByIdAsync", new { id = createdEvent.EventId }, createdEvent);
         }
 
-        //POST: api/Event/{id}/register
-        [HttpPost("{id}/register")]
+        //POST: api/Events/{id}/registrations
+        [HttpPost("{id}/registrations")]
         public async Task<ActionResult<EventDto?>> RegisterForEventAsync(int id, CreateRegistrationDto dto)
         {
             var result = await _registrationService.RegisterForEventAsync(id, dto);
@@ -89,7 +86,7 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             {
                 return Conflict("This email is already registered for this event"); // Return 409 Conflict if the user has already registered for the event
             }
-            return Ok(GetByIdAsync(result.EventId)); // Return the updated event with a 200 OK status
+            return CreatedAtRoute("GetByIdAsync", new { id = result.EventId }, await _eventService.GetByIdAsync(result.EventId)); // Return the updated event with a 201 Created status
         }
     }
 }
