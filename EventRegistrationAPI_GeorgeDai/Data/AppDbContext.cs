@@ -8,7 +8,7 @@ using EventRegistrationAPI_GeorgeDai.Models;
         {
         }
         
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Registration> Registrations { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<Registration> Registrations { get; set; }
 }
 
