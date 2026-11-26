@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EventRegistrationAPI_GeorgeDai.Services;
 using EventRegistrationAPI_GeorgeDai.DTOs;
-using EventRegistrationAPI_GeorgeDai.Models;
 
 namespace EventRegistrationAPI_GeorgeDai.Controllers
 {
@@ -40,6 +38,18 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             return Ok(eventEntity); // Return the event with a 200 OK status
         }
 
+        //POST: api/Events
+        [HttpPost]
+        public async Task<ActionResult<EventDto?>> CreateAsync(CreateEventDto dto)
+        {
+            var createdEvent = await _eventService.CreateAsync(dto);
+            if (createdEvent == null)
+            {
+                return BadRequest(); // Return 400 Bad Request if the event creation fails
+            }
+            return CreatedAtRoute("GetByIdAsync", new { id = createdEvent.EventId }, createdEvent); // 201 Created with the location of the newly created event
+        }
+
         //GET: api/Events/{id}/registrations
         [HttpGet("{id}/registrations")]
         public async Task<ActionResult<List<RegistrationDto>>> GetRegistrationsAsync(int id)
@@ -53,30 +63,15 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             return Ok(registrations); // Return the list of registrations with a 200 OK status
         }
 
-        //POST: api/Events
-        [HttpPost]
-        public async Task<ActionResult<EventDto?>> CreateAsync(CreateEventDto dto)
-        {
-            var createdEvent = await _eventService.CreateAsync(dto);
-            if (createdEvent == null)
-            {
-                return BadRequest(); // Return 400 Bad Request if the event creation fails
-            }
-            return CreatedAtRoute("GetByIdAsync", new { id = createdEvent.EventId }, createdEvent);
-        }
-
         //POST: api/Events/{id}/registrations
         [HttpPost("{id}/registrations")]
         public async Task<ActionResult<EventDto?>> RegisterForEventAsync(int id, CreateRegistrationDto dto)
         {
+            // Business rules
             var result = await _registrationService.RegisterForEventAsync(id, dto);
             if (result.ResultType == "EventNotFound")
             {
                 return NotFound("Event not found"); // Return 404 Not Found if the event is not found
-            }
-            if (result.ResultType == "EventFull")
-            {
-                return Conflict("This Event is full"); // Return 409 Conflict if the event is full
             }
             if (result.ResultType == "EventAlreadyHappened")
             {
@@ -85,6 +80,10 @@ namespace EventRegistrationAPI_GeorgeDai.Controllers
             if (result.ResultType == "AlreadyRegistered")
             {
                 return Conflict("This email is already registered for this event"); // Return 409 Conflict if the user has already registered for the event
+            }
+            if (result.ResultType == "EventFull")
+            {
+                return Conflict("This Event is full"); // Return 409 Conflict if the event is full
             }
             return CreatedAtRoute("GetByIdAsync", new { id = result.EventId }, await _eventService.GetByIdAsync(result.EventId)); // Return the updated event with a 201 Created status
         }

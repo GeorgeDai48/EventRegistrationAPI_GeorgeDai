@@ -1,5 +1,4 @@
-﻿using EventRegistrationAPI_GeorgeDai.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 namespace EventRegistrationAPI_GeorgeDai.DTOs
 {
     public class EventDto

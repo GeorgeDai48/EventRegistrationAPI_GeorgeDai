@@ -2,6 +2,7 @@
 
 namespace EventRegistrationAPI_GeorgeDai.Models
 {
+    // Represents an event in the system.
     public class Event
     {
         public int EventId { get; set; }

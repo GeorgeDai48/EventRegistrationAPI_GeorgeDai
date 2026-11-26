@@ -1,5 +1,4 @@
 ﻿using EventRegistrationAPI_GeorgeDai.DTOs;
-using EventRegistrationAPI_GeorgeDai.Models;
 
 namespace EventRegistrationAPI_GeorgeDai.Services
 {

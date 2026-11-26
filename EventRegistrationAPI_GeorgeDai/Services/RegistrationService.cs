@@ -12,6 +12,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
             _context = context;
         }
 
+        //Registers a student for an event and checking for business rules
         public async Task<RegisterEventResult> RegisterForEventAsync(int eventId, CreateRegistrationDto dto)
         {
             var eventEntity = await _context.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.EventId == eventId);
@@ -48,6 +49,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
             }; 
         }
 
+        // Retrieves all registrations for a specific event 
         public async Task<List<RegistrationDto>> GetRegistrationsAsync(int eventId)
         {
             return await _context.Registrations
@@ -62,6 +64,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
                 })
                 .ToListAsync();
         }
+        //Deletes a registration by its ID 
         public async Task<bool> DeleteAsync(int id)
         {
             var registration = await _context.Registrations.FirstOrDefaultAsync(r => r.RegistrationId == id);

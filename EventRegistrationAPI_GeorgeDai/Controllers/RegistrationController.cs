@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using EventRegistrationAPI_GeorgeDai.Services;
-using EventRegistrationAPI_GeorgeDai.DTOs;
 
 namespace EventRegistrationAPI_GeorgeDai.Controllers
 {

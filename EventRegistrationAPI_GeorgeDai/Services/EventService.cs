@@ -13,6 +13,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
             _context = context;
         }
 
+        // Retrieves all events from the database 
         public async Task<List<EventDto>> GetAllAsync()
         {
             return await _context.Events
@@ -29,6 +30,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
                 .ToListAsync();
         }
 
+        // Retrieves a specific event by its ID 
         public async Task<EventDto?> GetByIdAsync(int id)
         {
             var eventEntity = await _context.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.EventId == id);
@@ -48,6 +50,7 @@ namespace EventRegistrationAPI_GeorgeDai.Services
             };
         }
 
+        // Creates a new event in the database
         public async Task<EventDto?> CreateAsync(CreateEventDto dto)
         {
             var newEvent = new Event
